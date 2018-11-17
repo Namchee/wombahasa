@@ -22,10 +22,10 @@ public class GrammarEvaluator {
      * IT WON'T BE CHANGED
      */
     private final String ARTICLE = "(a|the)";
-    private final String ACTOR = "(" + ARTICLE + " )*" + noun;
+    private final String ACTOR = "(" + ARTICLE + " )?" + noun;
     private final String ACTIVE_LIST = "(" + ACTOR + " and )*" + ACTOR;
     private final String ACTION = ACTIVE_LIST + " " + verb + " " + ACTIVE_LIST;
-    private final String STATEMENT = "(" + ACTION + " , )*" + ACTION + "\\.";
+    private final String STATEMENT = "(" + ACTION + " , )*" + ACTION;
     
     private HashMap<String, ArrayList<String>> misspellings;
     
