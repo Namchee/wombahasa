@@ -27,7 +27,7 @@ public class GrammarEvaluator {
     private final String ACTION = ACTIVE_LIST + " " + verb + " " + ACTIVE_LIST;
     private final String STATEMENT = "(" + ACTION + " , )*" + ACTION;
     
-    private HashMap<String, ArrayList<String>> misspellings;
+    private HashMap<String, HashSet<String>> misspellings;
     
     private boolean unknown;
     
@@ -95,8 +95,11 @@ public class GrammarEvaluator {
         String[] token = this.sentence.split("\\s+");
         boolean flag = true;
         
-        for (int i = 0; i < token.length && flag; i++) {
-            if (!token[i].equals(",") && !this.dictionary.contains(token[i])) flag = false; 
+        for (int i = 0; i < token.length; i++) {
+            if (!token[i].equals(",") && !this.dictionary.contains(token[i])) {
+                flag = false; 
+                this.misspellings.put(token[i], new HashSet<String>());
+            }
         }
         
         return flag;
@@ -121,55 +124,50 @@ public class GrammarEvaluator {
      * Give the list of misspellings from the sentence
      */
     public void generateMisspellings () {
-        String[] token = this.sentence.split("\\s+");
+        for (String b: this.misspellings.keySet()) {
             
-        for (int i = 0; i < token.length; i++) {
-            if (!token[i].equals(",") && !this.dictionary.contains(token[i])) {
-                ArrayList<String> possibilities = new ArrayList<String>();
-                   
-                // try to guess what word is it
-                    
-                // try to insert a char
-                char arr[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-                for (int x = 0; x < arr.length; x++) {
-                    for (int j = 0; i <= token[i].length(); j++) {
-                        StringBuilder str = new StringBuilder(token[i]);
-                            str.insert(j, arr[x]);
-                            if (this.dictionary.contains(str.toString())) possibilities.add(str.toString());
-                        }
-                    }
-                    
-                    // try to delete a char
-                    for (int j = 0; j < token[i].length(); j++) {
-                        StringBuilder str = new StringBuilder(token[i]);
-                        str.deleteCharAt(j);
+            HashSet<String> possibilities = new HashSet<>();
+            // try to insert a char
+            char arr[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+            for (int x = 0; x < arr.length; x++) {
+                for (int j = 0; j <= b.length(); j++) {
+                    StringBuilder str = new StringBuilder(b);
+                        str.insert(j, arr[x]);
                         if (this.dictionary.contains(str.toString())) possibilities.add(str.toString());
                     }
+                }
                     
-                    // try to swap char
-                    for (int j = 0; j < token[i].length() - 1; j++) {
-                        String[] str = token[i].split("");
-                        String temp = str[j];
-                        str[j] = str[j + 1];
-                        str[j + 1] = temp;
-                        String swapped = String.join("", str);
-                        if (this.dictionary.contains(swapped)) possibilities.add(swapped);
-                    }
+            // try to delete a char
+            for (int j = 0; j < b.length(); j++) {
+                StringBuilder str = new StringBuilder(b);
+                str.deleteCharAt(j);
+                if (this.dictionary.contains(str.toString())) possibilities.add(str.toString());
+            }
                     
-                    // try to replace char
-                    for (int x = 0; x < arr.length; x++) {
-                        for (int j = 0; j < token[i].length(); j++) {
-                            StringBuilder str = new StringBuilder(token[i]);
-                            str.setCharAt(j, arr[x]);
-                            if (this.dictionary.contains(str.toString())) possibilities.add(str.toString());
-                        }
-                    }
+            // try to swap char
+            for (int j = 0; j < b.length() - 1; j++) {
+                String[] str = b.split("");
+                String temp = str[j];
+                str[j] = str[j + 1];
+                str[j + 1] = temp;
+                String swapped = String.join("", str);
+                if (this.dictionary.contains(swapped)) possibilities.add(swapped);
+            }
                     
-                    if (possibilities.isEmpty()) this.unknown = true;
-                    this.misspellings.put(token[i], possibilities);
+            // try to replace char
+            for (int x = 0; x < arr.length; x++) {
+                for (int j = 0; j < b.length(); j++) {
+                    StringBuilder str = new StringBuilder(b);
+                    str.setCharAt(j, arr[x]);
+                    if (this.dictionary.contains(str.toString())) possibilities.add(str.toString());
                 }
             }
+                    
+            if (possibilities.isEmpty()) this.unknown = true;
+            this.misspellings.put(b, possibilities);
+        }
     }
+    
     
     /**
      * findNouns
